@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block contenido %}
+   <center></center> <h2>Registrarse</h2>
+    <form action="/registrar" method="post">
+        <input type="hidden" name="csrf_token" value="{{ token }}">
+        <label>Correo<br><input type="email" name="correo" required></label>
+        <label>Contraseña<br><input type="password" name="contrasena" required></label>
+        <center><button type="submit" class="boton-volver">Registrar</button></center>
+    </form></center>
+{% endblock %}

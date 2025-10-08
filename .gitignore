@@ -1,0 +1,8 @@
+# Archivos sensibles
+.env
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.env/

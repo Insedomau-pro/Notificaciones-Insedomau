@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <p>
+    <a href="{{ url_for('noticias_lista') }}" class="boton boton-volver">◀</a>
+  </p>
+
+  <h2>{{ noticia[1] }}</h2>
+  <p class="meta">Publicado: {{ noticia[4].strftime('%d/%m/%Y - %H:%M') }}</p>
+
+  <div class="cuerpo">
+    {{ noticia[2] }}
+  </div>
+
+<p></p>
+  <div class="galeria">
+    {% for adj in adjuntos %}
+      {% if adj[3] == 'bd' or adj[2].startswith('image/') %}
+        <div class="imagen-galeria">
+          <a href="#img{{ adj[0] }}">
+            <img src="/adjuntos/{{ adj[0] }}/inline" alt="{{ adj[1] }}" class="mini">
+          </a>
+          <div id="img{{ adj[0] }}" class="modal">
+            <a href="#" class="cerrar">×</a>
+            <img src="/adjuntos/{{ adj[0] }}/inline" alt="{{ adj[1] }}">
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <p></p>
+
+  <ul>
+    {% for adj in adjuntos %}
+      <li>
+        {{ adj[1] }} - 
+        <a href="/adjuntos/{{ adj[0] }}/descargar" class="boton boton-descargar">Descargar</a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if session and session.usuario_id %}
+    {% set usuario = obtener_usuario_actual() %}
+    {% if usuario and usuario.rol == 'profesor' %}
+      <p>
+        <a href="/noticias/{{ noticia[0] }}/editar" class="boton boton-editar">Editar</a>
+      </p>
+    {% endif %}
+  {% endif %}
+
+
+{% endblock %}

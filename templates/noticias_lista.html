@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <div class="contenedor-noticias">
+    <h2>Noticias recientes</h2>
+
+    {% if session and session.usuario_id %}
+      {% set usuario = obtener_usuario_actual() %}
+      {% if usuario and usuario.rol == 'profesor' %}
+        <p><a class="boton-crear-noticia" href="{{ url_for('noticias_crear') }}">Crear nueva publicación</a></p>
+      {% endif %}
+    {% endif %}
+
+    <div class="lista-noticias">
+      {% for noticia in noticias %}
+        <div class="noticia-card">
+          <h3>
+            <a href="{{ url_for('noticias_detalle', noticia_id=noticia[0]) }}">
+              {{ noticia[1] }}
+            </a>
+          </h3>
+          <p>{{ noticia[2].split()[:10] | join(' ') }}...</p>
+          <small>{{ noticia[3].strftime('%d/%m/%Y %H:%M') }}</small>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="paginacion">
+      {% if pagina > 1 %}
+        <a href="?page={{ pagina - 1 }}">◀</a>
+      {% endif %}
+      <span>Página {{ pagina }} de {{ paginas_totales }}</span>
+      {% if pagina < paginas_totales %}
+        <a href="?page={{ pagina + 1 }}">➤</a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+<style>
+  .contenedor-noticias {
+    max-width: 800px;   /* Ancho fijo para todas las páginas */
+    margin: 0 auto;     /* Centrado horizontal */
+    padding: 20px;
+  }
+
+  .lista-noticias {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;          /* Separación entre noticias */
+  }
+
+  .noticia-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+  }
+
+  .noticia-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+  }
+
+  .noticia-card p {
+    margin: 0 0 5px 0;
+    color: #666;
+  }
+
+  .paginacion {
+    margin-top: 20px;
+    text-align: center;
+  }
+</style>

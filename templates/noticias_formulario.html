@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+  {% if noticia %}
+    <h2>Editar noticia</h2>
+    <form action="/noticias/{{ noticia[0] }}/editar" method="post" enctype="multipart/form-data">
+  {% else %}
+    <h2>Crear noticia</h2>
+    <form action="/noticias/crear" method="post" enctype="multipart/form-data">
+  {% endif %}
+
+    <input type="hidden" name="csrf_token" value="{{ token }}">
+
+    <label>
+      Título<br>
+      <input type="text" name="titulo" value="{{ noticia[1] if noticia else '' }}" required>
+    </label>
+
+    <label>
+      Cuerpo<br>
+      <textarea name="cuerpo" required>{{ noticia[2] if noticia else '' }}</textarea>
+    </label>
+
+    <!-- Archivos ya existentes -->
+    {% if noticia and adjuntos %}
+      <h3>Archivos actuales:</h3>
+      <ul>
+        {% for adjunto in adjuntos %}
+          <li>
+            <a href="{{ url_for('adjunto_descargar', adjunto_id=adjunto[0]) }}" target="_blank">
+              {{ adjunto[1] }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <!-- Subir nuevos archivos -->
+    <label class="file-label">
+      <span class="clip-icon">&#128206;</span> Adjuntar archivos
+      <input type="file" name="adjuntos" multiple style="display:none;" onchange="updateFileNames(this)">
+    </label>
+    <div id="file-names"></div>
+
+    <!-- Botones finales -->
+    <div class="acciones-formulario">
+      <button type="submit" class="boton boton-guardar">Guardar</button>
+      <a href="/noticias" class="boton boton-cancelar">Cancelar</a>
+    </div>
+  </form> <!-- 🔹 Cierra el formulario principal -->
+
+  {% if noticia and adjuntos %}
+    <h3>Adjuntos actuales</h3>
+    <div class="adjuntos-actuales">
+      {% for adj in adjuntos %}
+        <div class="adjunto-item">
+          {% if adj[3] == 'bd' %}
+            <img src="/adjuntos/{{ adj[0] }}/inline" alt="{{ adj[1] }}" width="200"><br>
+          {% else %}
+            <img src="/static/uploads/{{ adj[4] }}" alt="{{ adj[1] }}" width="200"><br>
+          {% endif %}
+          <!-- 🔹 Formulario separado SOLO para eliminar imagen -->
+          <form action="/adjuntos/{{ adj[0] }}/eliminar" method="post">
+            <input type="hidden" name="csrf_token" value="{{ token }}">
+            <button type="submit" class="boton boton-eliminar" onclick="return confirm('¿Eliminar esta imagen?')">
+              Eliminar
+            </button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if noticia %}
+    <!-- 🔹 Formulario separado SOLO para eliminar noticia -->
+    <form action="{{ url_for('noticias_eliminar', noticia_id=noticia[0]) }}" method="post" style="margin-top:10px;">
+      <input type="hidden" name="csrf_token" value="{{ token }}">
+      <button type="submit" class="boton boton-eliminar" onclick="return confirm('¿Seguro que quieres eliminar esta noticia?')">
+        Eliminar noticia
+      </button>
+    </form>
+  {% endif %}
+
+  <script>
+    const label = document.querySelector('.file-label');
+    const input = label.querySelector('input[type="file"]');
+    label.addEventListener('click', () => input.click());
+
+    function updateFileNames(input) {
+      const list = document.getElementById('file-names');
+      list.innerHTML = '';
+      for (let i = 0; i < input.files.length; i++) {
+        const div = document.createElement('div');
+        div.textContent = input.files[i].name;
+        list.appendChild(div);
+      }
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,511 @@
+/* ======== Estructura general ======== */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #f4f6f9;
+  color: #000000;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Contenedor principal */
+main {
+  flex: 1;
+  padding: 2rem;
+}
+
+/* ======== Formularios ======== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+  color: #2c3e50;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #ccd1d9;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  display: block;
+}
+
+/* ======== Botón ======== */
+button {
+  display: inline-block;
+  padding: 0.45rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #bc0505; /* rojo fuerte */
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  width: auto; 
+  float: right; /* se va a la derecha */
+}
+button:hover {
+  background: #6b1a01; 
+  transform: scale(1.03);
+}
+
+/* ======== Barra de navegación ======== */
+/* ======== Barra de navegación compacta ======== */
+header {
+  background: #0056b3; /* azul más vivo */
+  color: white;
+  padding: 0.25rem 1rem; /* ↓ menos alto y menos ancho */
+}
+
+nav a {
+  color: white;
+  margin-right: 0.75rem; /* ↓ menos espacio entre enlaces */
+  text-decoration: none;
+  font-weight: 500;
+  line-height: 1.2; /* ↓ reduce la altura de línea */
+  font-size: 0.95rem; /* opcional, texto un poco más pequeño */
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+
+/* ======== Footer ======== */
+footer {
+  background: #0056b3;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto; /* asegura que quede abajo */
+  font-size: 0.9rem;
+}
+
+
+/* Botón principal para crear noticias */
+.boton-crear-noticia {
+    display: inline-block;      /* que no ocupe toda la línea */
+    padding: 8px 16px;          /* más compacto y proporcional */
+    font-size: 14px;            /* tamaño de letra legible */
+    font-weight: bold;
+    color: #fff;                /* texto blanco */
+    background-color: #007bff;  /* azul brillante */
+    border: none;               /* sin borde */
+    border-radius: 6px;         /* bordes redondeados */
+    cursor: pointer;            /* indicador de clic */
+    text-decoration: none;      /* quitar subrayado si es <a> */
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.boton-crear-noticia:hover {
+    background-color: #0056b3;  /* azul más oscuro al pasar el mouse */
+    transform: translateY(-1px); /* ligero efecto de “levantado” */
+}
+
+.boton-crear-noticia:active {
+    transform: translateY(0);  /* vuelve al original al hacer clic */
+}
+/* ----------------- Estilo para imágenes en noticias ----------------- */
+.publicacion img {
+    max-width: 100%;        /* que no se salga del contenedor */
+    max-height: 400px;      /* altura máxima */
+    width: auto;            /* ancho automático */
+    height: auto;           /* altura automática */
+    object-fit: cover;      /* recorta si es necesario */
+    display: block;
+    margin: 10px auto;      /* centrado con margen */
+    border-radius: 8px;     /* bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* sombra ligera */
+    border: 1px solid #ccc; /* borde suave */
+}
+
+/* Imagen dentro de adjunto inline en detalle de noticia */
+.noticia-detalle img {
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: contain;    /* mantiene proporción original */
+    display: block;
+    margin: 15px 0;
+}
+
+/* Opcional: efecto hover sobre la imagen */
+.publicacion img:hover {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+}
+.btn-volver {
+    display: inline-block;
+    padding: 8px 14px;
+    background-color: #1d4ed8; /* azul brillante */
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.btn-volver:hover {
+    background-color: #2563eb;
+}
+.detalle-noticia {
+  color: #1a73e8;       /* azul llamativo */
+  font-weight: 600;      /* un poco más grueso */
+  text-decoration: underline dotted; /* subrayado punteado */
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.detalle-noticia:hover {
+  color: #d93025;        /* cambia a rojo al pasar el cursor */
+  text-decoration: underline solid; /* subrayado sólido al pasar */
+}
+.galeria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* separación entre imágenes */
+}
+
+.imagen-galeria img {
+  max-width: 300px;      /* ancho máximo */
+  max-height: 200px;     /* alto máximo */
+  width: auto;           /* mantiene proporción */
+  height: auto;          /* mantiene proporción */
+  object-fit: cover;     /* recorta si es necesario para llenar el espacio */
+  border-radius: 5px;    /* esquinas redondeadas opcional */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* sombra opcional */
+  transition: transform 0.3s ease;
+}
+
+.imagen-galeria img:hover {
+  transform: scale(1.05); /* efecto al pasar el cursor */
+}
+.alerta {
+  background-color: #ff4d4d; /* rojo para error */
+  color: white;
+  padding: 12px 20px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+.mini {
+  width: 150px;       /* tamaño de la miniatura */
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.mini:hover {
+  transform: scale(1.1);  /* pequeño efecto al pasar mouse */
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.8);
+  text-align: center;
+  z-index: 999;
+}
+
+.modal img {
+  max-width: 90%;
+  max-height: 80%;
+  margin-top: 5%;
+}
+
+.modal:target {
+  display: block;
+}
+
+.cerrar {
+  position: absolute;
+  top: 20px; right: 40px;
+  color: white;
+  font-size: 2em;
+  text-decoration: none;
+}
+
+/* --- Botones --- */
+.boton {
+  padding: 6px 12px;
+  margin: 4px 2px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+  display: inline-block;
+}
+
+.boton-volver {
+  background-color: #2196F3;
+  color: white;
+}
+.boton-volver:hover {
+  background-color: #1e6fb2;
+}
+
+.boton-editar {
+  background-color: #2196F3;
+  color: white;
+}
+.boton-editar:hover {
+  background-color: #1976d2;
+}
+
+.boton-descargar {
+  background-color: #4CAF50;
+  color: white;
+  padding: 3px 8px;
+  font-size: 0.9em;
+  border-radius: 4px;
+}
+.boton-descargar:hover {
+  background-color: #45a049;
+}
+
+/* --- Galería de imágenes --- */
+.galeria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.imagen-galeria img.mini {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  transition: transform 0.2s;
+}
+
+.imagen-galeria img.mini:hover {
+  transform: scale(1.1);
+}
+
+/* --- Modal de imagen grande --- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal img {
+  max-width: 90%;
+  max-height: 80%;
+  border-radius: 5px;
+}
+
+.modal:target {
+  display: flex;
+}
+
+.cerrar {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 30px;
+  color: white;
+  text-decoration: none;
+}
+
+.paginacion {
+    text-align: center; /* Centra todo el bloque */
+    margin: 20px 0;
+}
+
+.paginacion a {
+    display: inline-flex;           /* flex interno para centrar */
+    justify-content: center;        
+    align-items: center;            
+    width: 40px;                    /* ancho fijo */
+    height: 40px;                   /* alto fijo = círculo */
+    margin: 5px;
+    border-radius: 50%;             /* círculo */
+    background: #007BFF;            /* azul brillante */
+    color: white;
+    font-weight: bold;
+    text-decoration: none;          /* quita el subrayado */
+    transition: background 0.25s, transform 0.25s;
+}
+
+.paginacion a:hover {
+    background: #0056b3;            /* azul más oscuro */
+    transform: scale(0.9);
+}
+
+.paginacion span {
+    margin: 0 10px;
+    font-weight: bold;
+    color: #333; /* texto en negro/gris */
+}
+
+.lista-noticias {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.noticia-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+
+.noticia-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.noticia-card a {
+  text-decoration: none;
+  color: #333;
+}
+
+.noticia-card p {
+  margin: 0 0 10px;
+  color: #555;
+}
+
+.noticia-card small {
+  color: #888;
+  font-size: 12px;
+}
+.contenedor-noticias {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+/* ====== Noticias estilo mejorado ====== */
+.noticia-card {
+    background: #ffffff;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    animation: fadeInUp 0.6s ease both;
+    transition: background 0.3s, color 0.3s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.acciones-formulario {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;       /* separación entre botones */
+  flex-wrap: wrap; /* si no caben en una fila, bajan ordenados */
+  align-items: center;
+}
+
+.acciones-formulario .boton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.2s ease;
+}
+/* Botones generales */
+.boton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  margin: 5px 2px;
+  transition: background 0.2s ease;
+}
+
+/* Guardar */
+.boton-guardar {
+  background: #28a745;
+  color: #fff;
+}
+.boton-guardar:hover {
+  background: #218838;
+}
+
+/* Cancelar */
+.boton-cancelar {
+  background: #6c757d;
+  color: #fff;
+}
+.boton-cancelar:hover {
+  background: #5a6268;
+}
+
+/* Eliminar */
+.boton-eliminar {
+  background: #dc3545;
+  color: #fff;
+}
+.boton-eliminar:hover {
+  background: #c82333;
+}
+
+/* Estilos para adjuntos */
+.adjuntos-actuales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.adjunto-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  background: #f9f9f9;
+}
+.adjunto-item img {
+  max-width: 200px;
+  border-radius: 4px;
+}

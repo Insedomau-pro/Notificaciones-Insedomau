@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Noticias Insedomau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='Imagen1.ico') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="pagina-fondo">
+  <header class="cabecera">
+    <div class="contenedor">
+      <h1>Noticias Insedomau</h1>
+      <nav>
+        {% if session.usuario_id %}
+          <form action="/cerrar_sesion" method="post" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token or '' }}">
+            <button type="submit">Cerrar sesión</button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('iniciar_sesion') }}">Iniciar sesión</a> |
+          <a href="{{ url_for('registrar') }}">Registrarse</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="contenedor main">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="mensajes">
+          {% for m in messages %}
+            <li>{{ m }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% block contenido %}{% endblock %}
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">&copy; Institución Educativa Dolores Maria Ucros - Noticias</div>
+  </footer>
+    </body>
+        
+</html>

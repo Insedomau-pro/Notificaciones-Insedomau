@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block contenido %}
+    <h2>Iniciar sesión</h2>
+        <center><form id="login"  action="/iniciar_sesion" method="post">
+            <input type="hidden" name="csrf_token" value="{{ token }}">
+            <label>Correo<br><input type="email" name="correo" required></label>
+            <label>Contraseña<br><input type="password" name="contrasena" required></label>
+            <button type="submit" class="boton-editar">Entrar</button>
+        </form></center>
+
+{% endblock %}

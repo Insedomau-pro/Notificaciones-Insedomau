@@ -1,0 +1,6 @@
+Flask
+Flask-Mail
+python-dotenv
+psycopg2-binary
+Werkzeug
+click
