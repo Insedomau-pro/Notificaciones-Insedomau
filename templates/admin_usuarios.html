@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block contenido %}
+
+<div class="admin-container">
+  <div class="encabezado-admin">
+    <h2>Gestión de Usuarios</h2>
+    <a href="{{ url_for('admin_crear_usuario') }}" class="boton-crear">➕ Crear nuevo usuario</a>
+  </div>
+
+  <div class="tabla-scroll">
+    <table class="tabla-usuarios">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td data-label="ID">{{ u[0] }}</td>
+          <td data-label="Correo">{{ u[1] }}</td>
+          <td data-label="Rol">{{ u[2] }}</td>
+          <td data-label="Acciones" class="acciones">
+            <a href="{{ url_for('admin_editar_usuario', usuario_id=u[0]) }}" class="btn-editar">✏️</a>
+            <form method="POST" action="{{ url_for('admin_eliminar_usuario', usuario_id=u[0]) }}" class="form-eliminar">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button type="submit" class="btn-eliminar" onclick="return confirm('¿Eliminar este usuario?')">🗑️</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

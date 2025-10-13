@@ -144,47 +144,6 @@ def iniciar_sesion():
     conexion.close()
     return redirect('/noticias')
 
-@aplicacion.route('/registrar', methods=['GET', 'POST'])
-def registrar():
-    if request.method == 'GET':
-        token = generar_token_csrf()
-        return render_template('registrar.html', token=token)
-
-    token = request.form.get('csrf_token')
-    if not verificar_token_csrf(token):
-        return render_template('error.html', mensaje='Token CSRF inválido'), 400
-
-    correo = request.form.get('correo', '').strip().lower()
-    contrasena = request.form.get('contrasena', '')
-
-    if not correo or not contrasena:
-        flash('Correo y contraseña son obligatorios')
-        return redirect(url_for('registrar'))
-
-    contrasena_hash = generate_password_hash(contrasena)
-    conexion = obtener_conexion()
-    cur = conexion.cursor()
-    try:
-        cur.execute(
-            "INSERT INTO usuario (correo, contrasena_hash, rol) VALUES (%s,%s,%s) RETURNING id",
-            (correo, contrasena_hash, 'estudiante')
-        )
-        uid = cur.fetchone()[0]
-        conexion.commit()
-    except Exception:
-        conexion.rollback()
-        cur.close()
-        conexion.close()
-        flash('No se pudo crear el usuario: correo quizá ya registrado')
-        return redirect(url_for('registrar'))
-
-    cur.close()
-    conexion.close()
-    # sesión nueva + token CSRF
-    session.clear()
-    session['usuario_id'] = uid
-    generar_token_csrf()
-    return redirect('/noticias')
 
 @aplicacion.route('/cerrar_sesion', methods=['POST'])
 def cerrar_sesion():
@@ -193,6 +152,150 @@ def cerrar_sesion():
         return render_template('error.html', mensaje='Token CSRF inválido'), 400
     session.clear()
     return redirect(url_for('iniciar_sesion'))
+
+# ----------------- RUTAS DE ADMINISTRADOR -----------------
+@aplicacion.route('/admin/usuarios')
+def admin_usuarios():
+    usuario = obtener_usuario_actual()
+    if not usuario or usuario.get('rol') != 'admin':
+        return render_template('error.html', mensaje='Acceso denegado'), 403
+
+    conexion = obtener_conexion()
+    cur = conexion.cursor()
+    cur.execute("SELECT id, correo, rol FROM usuario ORDER BY id ASC")
+    usuarios = cur.fetchall()
+    cur.close()
+    conexion.close()
+    return render_template('admin_usuarios.html', usuarios=usuarios, token=generar_token_csrf())
+
+
+@aplicacion.route('/admin/usuarios/crear', methods=['GET', 'POST'])
+def admin_crear_usuario():
+    usuario = obtener_usuario_actual()
+    if not usuario or usuario.get('rol') != 'admin':
+        return render_template('error.html', mensaje='Acceso denegado'), 403
+
+    if request.method == 'GET':
+        return render_template('admin_usuario_form.html', token=generar_token_csrf())
+
+    token = request.form.get('csrf_token')
+    if not verificar_token_csrf(token):
+        return render_template('error.html', mensaje='Token CSRF inválido'), 400
+
+    correo = request.form.get('correo', '').strip().lower()
+    contrasena = request.form.get('contrasena', '')
+    rol = request.form.get('rol', '').strip().lower()
+
+    if not correo or not contrasena or rol not in ['profesor', 'estudiante', 'admin']:
+        flash('Datos inválidos o incompletos')
+        return redirect(url_for('admin_crear_usuario'))
+
+    conexion = obtener_conexion()
+    cur = conexion.cursor()
+    try:
+        cur.execute('INSERT INTO usuario (correo, contrasena_hash, rol) VALUES (%s,%s,%s)',
+                    (correo, generate_password_hash(contrasena), rol))
+        conexion.commit()
+        flash('Usuario creado correctamente')
+    except Exception as e:
+        conexion.rollback()
+        flash('Error al crear usuario: ' + str(e))
+    finally:
+        cur.close()
+        conexion.close()
+
+    return redirect(url_for('admin_usuarios'))
+
+
+@aplicacion.route('/admin/usuarios/<int:usuario_id>/editar', methods=['GET', 'POST'])
+def admin_editar_usuario(usuario_id):
+    usuario = obtener_usuario_actual()
+    if not usuario or usuario.get('rol') != 'admin':
+        return render_template('error.html', mensaje='Acceso denegado'), 403
+
+    conexion = obtener_conexion()
+    cur = conexion.cursor()
+
+    if request.method == 'GET':
+        cur.execute("SELECT id, correo, rol FROM usuario WHERE id=%s", (usuario_id,))
+        u = cur.fetchone()
+        cur.close()
+        conexion.close()
+        if not u:
+            return render_template('error.html', mensaje='Usuario no encontrado'), 404
+        return render_template('admin_usuario_form.html', usuario=u, token=generar_token_csrf())
+
+    token = request.form.get('csrf_token')
+    if not verificar_token_csrf(token):
+        return render_template('error.html', mensaje='Token CSRF inválido'), 400
+
+    correo = request.form.get('correo', '').strip().lower()
+    rol = request.form.get('rol', '').strip().lower()
+    contrasena = request.form.get('contrasena', '')
+
+    try:
+        if contrasena:
+            cur.execute("UPDATE usuario SET correo=%s, rol=%s, contrasena_hash=%s WHERE id=%s",
+                        (correo, rol, generate_password_hash(contrasena), usuario_id))
+        else:
+            cur.execute("UPDATE usuario SET correo=%s, rol=%s WHERE id=%s",
+                        (correo, rol, usuario_id))
+        conexion.commit()
+        flash('Usuario actualizado correctamente')
+    except Exception as e:
+        conexion.rollback()
+        flash('Error al actualizar usuario: ' + str(e))
+    finally:
+        cur.close()
+        conexion.close()
+
+    return redirect(url_for('admin_usuarios'))
+
+
+@aplicacion.route('/admin/usuarios/<int:usuario_id>/eliminar', methods=['POST'])
+def admin_eliminar_usuario(usuario_id):
+    usuario = obtener_usuario_actual()
+    if not usuario or usuario.get('rol') != 'admin':
+        return render_template('error.html', mensaje='Acceso denegado'), 403
+
+    token = request.form.get('csrf_token')
+    if not verificar_token_csrf(token):
+        return render_template('error.html', mensaje='Token CSRF inválido'), 400
+
+    conexion = obtener_conexion()
+    cur = conexion.cursor()
+    try:
+        cur.execute("DELETE FROM usuario WHERE id=%s", (usuario_id,))
+        conexion.commit()
+        flash('Usuario eliminado correctamente')
+    except Exception as e:
+        conexion.rollback()
+        flash('Error al eliminar usuario: ' + str(e))
+    finally:
+        cur.close()
+        conexion.close()
+
+    return redirect(url_for('admin_usuarios'))
+
+@aplicacion.route('/admin/cambiar_rol/<int:user_id>', methods=['POST'])
+def cambiar_rol(user_id):
+    usuario_actual = obtener_usuario_actual()
+    if not usuario_actual or usuario_actual['rol'] != 'admin':
+        return render_template('error.html', mensaje='Acceso denegado'), 403
+
+    nuevo_rol = request.form.get('rol')
+    if not nuevo_rol:
+        flash("Debe seleccionar un rol válido.")
+        return redirect(url_for('admin_usuarios'))
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+    cursor.execute("UPDATE usuarios SET rol = ? WHERE id = ?", (nuevo_rol, user_id))
+    conexion.commit()
+    conexion.close()
+
+    flash("Rol del usuario actualizado correctamente.")
+    return redirect(url_for('admin_usuarios'))
 
 # ----------------- RUTAS DE NOTICIAS -----------------
 @aplicacion.route('/')
@@ -628,25 +731,6 @@ def enviar_notificacion_correo(titulo, cuerpo, noticia_id):
         except Exception as e:
             print("❌ Error al enviar correos:", e)
 
-
-# -------------- CLI para crear profesor --------------
-@aplicacion.cli.command('crear-profesor')
-@click.option('--correo', prompt=True)
-@click.option('--contrasena', prompt=True, hide_input=True, confirmation_prompt=True)
-def crear_profesor_cli(correo, contrasena):
-    contrasena_hash = generate_password_hash(contrasena)
-    conexion = obtener_conexion()
-    cur = conexion.cursor()
-    try:
-        cur.execute('INSERT INTO usuario (correo, contrasena_hash, rol) VALUES (%s,%s,%s)', (correo, contrasena_hash, 'profesor'))
-        conexion.commit()
-        print('Profesor creado correctamente')
-    except Exception as e:
-        conexion.rollback()
-        print('Error al crear profesor:', e)
-    finally:
-        cur.close()
-        conexion.close()
 
 # -------------- ejecutar --------------
 if __name__ == '__main__':

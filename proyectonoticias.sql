@@ -3,7 +3,7 @@ CREATE TABLE usuario (
 id SERIAL PRIMARY KEY,
 correo TEXT UNIQUE NOT NULL CHECK (position('@' in correo) > 1),
 contrasena_hash TEXT NOT NULL,
-rol TEXT NOT NULL CHECK (rol IN ('estudiante','profesor')),
+rol TEXT NOT NULL CHECK (rol IN ('estudiante','profesor','admin')),
 creado_en TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE TABLE noticia (

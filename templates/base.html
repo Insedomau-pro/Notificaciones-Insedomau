@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Noticias Insedomau</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="{{ url_for('static', filename='Imagen1.ico') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="pagina-fondo">
   <header class="cabecera">
@@ -19,11 +19,14 @@
             <button type="submit">Cerrar sesión</button>
           </form>
         {% else %}
-          <a href="{{ url_for('iniciar_sesion') }}">Iniciar sesión</a> |
-          <a href="{{ url_for('registrar') }}">Registrarse</a>
+          <a href="{{ url_for('iniciar_sesion') }}">Iniciar sesión</a>
         {% endif %}
       </nav>
     </div>
+
+    {% if obtener_usuario_actual() and obtener_usuario_actual().rol == 'admin' %}
+      <li><a href="{{ url_for('admin_usuarios') }}" class="boton-admin">👑 Administración</a></li>
+    {% endif %}
   </header>
 
   <main class="contenedor main">
