@@ -722,28 +722,34 @@ def enviar_notificacion_correo(titulo, cuerpo, noticia_id):
         texto = f"{cuerpo}\n\nVer la noticia completa: {enlace}"
         html = f"<p>{cuerpo}</p><p><a href='{enlace}'>Ver la noticia completa</a></p>"
 
-        data = {
-            "from": {"email": os.getenv("MAIL_USUARIO")},
-            "to": [{"email": correo} for correo in destinatarios],
-            "subject": asunto,
-            "text": texto,
-            "html": html
-        }
+        # Límite de destinatarios por request (MailerSend gratuito = 50)
+        MAX_DESTINATARIOS = 50
 
         headers = {
             "Authorization": f"Bearer {os.getenv('MAILER_SEND_API_KEY')}",
             "Content-Type": "application/json"
         }
 
-        response = requests.post("https://api.mailersend.com/v1/email", json=data, headers=headers)
+        # Enviar en lotes
+        for i in range(0, len(destinatarios), MAX_DESTINATARIOS):
+            batch = destinatarios[i:i + MAX_DESTINATARIOS]
+            data = {
+                "from": {"email": os.getenv("MAIL_USUARIO")},
+                "to": [{"email": correo} for correo in batch],
+                "subject": asunto,
+                "text": texto,
+                "html": html
+            }
+            response = requests.post("https://api.mailersend.com/v1/email", json=data, headers=headers)
 
-        if response.status_code in [200, 202]:
-            print("✅ Correos enviados correctamente")
-        else:
-            print("❌ Error al enviar correos:", response.text)
+            if response.status_code in [200, 202]:
+                print(f"✅ Correos enviados correctamente al lote {i // MAX_DESTINATARIOS + 1}")
+            else:
+                print(f"❌ Error al enviar el lote {i // MAX_DESTINATARIOS + 1}:", response.text)
 
     except Exception as e:
         print("❌ Error al procesar los correos:", e)
+
 
 
 
