@@ -2,6 +2,7 @@
 # Aplicación Flask completa - variables y rutas en español
 
 import os
+import requests
 import uuid
 import smtplib
 import math
@@ -706,30 +707,44 @@ def adjunto_descargar(adjunto_id):
 
 # -------------- envío de correos --------------
 def enviar_notificacion_correo(titulo, cuerpo, noticia_id):
-    with aplicacion.app_context():
-        try:
-            # Obtener todos los correos
-            conexion = obtener_conexion()
-            cursor = conexion.cursor()
-            cursor.execute("SELECT correo FROM usuario")
-            destinatarios = [fila[0] for fila in cursor.fetchall()]
-            cursor.close()
-            conexion.close()
+    try:
+        # Obtener todos los correos
+        conexion = obtener_conexion()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT correo FROM usuario")
+        destinatarios = [fila[0] for fila in cursor.fetchall()]
+        cursor.close()
+        conexion.close()
 
-            # Crear el mensaje
-            enlace = f"http://127.0.0.1:5000/noticias/{noticia_id}"
-            mensaje = Message(
-                subject=f"Nueva noticia: {titulo}",
-                recipients=destinatarios,
-                body=f"{cuerpo}\n\nVer la noticia completa: {enlace}"
-            )
+        # Preparar el mensaje
+        enlace = f"https://notificaciones-insedomau.onrender.com/{noticia_id}"
+        asunto = f"Nueva noticia: {titulo}"
+        texto = f"{cuerpo}\n\nVer la noticia completa: {enlace}"
+        html = f"<p>{cuerpo}</p><p><a href='{enlace}'>Ver la noticia completa</a></p>"
 
-            # Enviar
-            mail.send(mensaje)
+        data = {
+            "from": {"email": os.getenv("MAIL_USUARIO")},
+            "to": [{"email": correo} for correo in destinatarios],
+            "subject": asunto,
+            "text": texto,
+            "html": html
+        }
+
+        headers = {
+            "Authorization": f"Bearer {os.getenv('MAILER_SEND_API_KEY')}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post("https://api.mailersend.com/v1/email", json=data, headers=headers)
+
+        if response.status_code in [200, 202]:
             print("✅ Correos enviados correctamente")
+        else:
+            print("❌ Error al enviar correos:", response.text)
 
-        except Exception as e:
-            print("❌ Error al enviar correos:", e)
+    except Exception as e:
+        print("❌ Error al procesar los correos:", e)
+
 
 
 # -------------- ejecutar --------------
