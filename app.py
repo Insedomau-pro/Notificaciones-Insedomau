@@ -5,6 +5,7 @@ import os
 import requests
 import uuid
 import smtplib
+import flask_mail
 import math
 from email.message import EmailMessage
 from flask import (
@@ -17,6 +18,9 @@ from basedatos import obtener_conexion
 from dotenv import load_dotenv
 import psycopg2
 import click
+from datetime import datetime
+
+hora = datetime.now().strftime("%H:%M:%S")
 
 # ----------------- Configuración inicial -----------------
 load_dotenv()
@@ -706,13 +710,14 @@ def adjunto_descargar(adjunto_id):
     return render_template('error.html', mensaje='No se puede servir el adjunto'), 500
 
 # -------------- envío de correos --------------
+
 def enviar_notificacion_correo(titulo, cuerpo, noticia_id):
     try:
-        # Obtener todos los correos válidos
+        # Obtener todos los correos
         conexion = obtener_conexion()
         cursor = conexion.cursor()
         cursor.execute("SELECT correo FROM usuario")
-        destinatarios = [fila[0] for fila in cursor.fetchall() if fila[0]]
+        destinatarios = [fila[0] for fila in cursor.fetchall()]
         cursor.close()
         conexion.close()
 
@@ -720,39 +725,21 @@ def enviar_notificacion_correo(titulo, cuerpo, noticia_id):
             print("❌ No hay destinatarios válidos")
             return
 
-        # Preparar los datos base
-        enlace = f"https://notificaciones-insedomau.onrender.com/{noticia_id}"
-        asunto = f"Nueva noticia: {titulo}"
-        texto = f"{cuerpo}\n\nVer la noticia completa: {enlace}"
-        html = f"<p>{cuerpo}</p><p><a href='{enlace}'>Ver la noticia completa</a></p>"
+        # Crear el mensaje
+        enlace = f"https://notificaciones-insedomau.onrender.com/noticias/{noticia_id}"
+        mensaje = Message(
+            subject=f"Nueva noticia: {titulo}",
+            recipients=destinatarios,
+            body=f"{cuerpo}\n\nVer la noticia completa: {enlace}"
+        )
 
-        headers = {
-            "Authorization": f"Bearer {os.getenv('MAILER_SEND_API_KEY')}",
-            "Content-Type": "application/json"
-        }
-
-        # Enviar correo a cada usuario individualmente
-        for i, correo in enumerate(destinatarios, start=1):
-            data = {
-                "from": {"email": os.getenv("MAIL_USUARIO")},
-                "to": [{"email": correo}],
-                "subject": asunto,
-                "text": texto,
-                "html": html
-            }
-
-            response = requests.post("https://api.mailersend.com/v1/email", json=data, headers=headers)
-
-            if response.status_code in [200, 202]:
-                print(f"✅ ({i}/{len(destinatarios)}) Correo enviado a {correo}")
-            else:
-                print(f"❌ ({i}/{len(destinatarios)}) Error al enviar a {correo}: {response.text}")
-
-            # Pequeña pausa para evitar límite de velocidad
-            time.sleep(1)
+        # Enviar
+        mail.send(mensaje)
+        print("✅ Correos enviados correctamente")
 
     except Exception as e:
-        print("❌ Error al procesar los correos:", e)
+        print("❌ Error al enviar correos:", e)
+
 
 # -------------- ejecutar --------------
 if __name__ == '__main__':
