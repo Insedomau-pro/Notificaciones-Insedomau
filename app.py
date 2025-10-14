@@ -708,50 +708,51 @@ def adjunto_descargar(adjunto_id):
 # -------------- envío de correos --------------
 def enviar_notificacion_correo(titulo, cuerpo, noticia_id):
     try:
-        # Obtener todos los correos
+        # Obtener todos los correos válidos
         conexion = obtener_conexion()
         cursor = conexion.cursor()
         cursor.execute("SELECT correo FROM usuario")
-        destinatarios = [fila[0] for fila in cursor.fetchall()]
+        destinatarios = [fila[0] for fila in cursor.fetchall() if fila[0]]
         cursor.close()
         conexion.close()
 
-        # Preparar el mensaje
+        if not destinatarios:
+            print("❌ No hay destinatarios válidos")
+            return
+
+        # Preparar los datos base
         enlace = f"https://notificaciones-insedomau.onrender.com/{noticia_id}"
         asunto = f"Nueva noticia: {titulo}"
         texto = f"{cuerpo}\n\nVer la noticia completa: {enlace}"
         html = f"<p>{cuerpo}</p><p><a href='{enlace}'>Ver la noticia completa</a></p>"
-
-        # Límite de destinatarios por request (MailerSend gratuito = 50)
-        MAX_DESTINATARIOS = 50
 
         headers = {
             "Authorization": f"Bearer {os.getenv('MAILER_SEND_API_KEY')}",
             "Content-Type": "application/json"
         }
 
-        # Enviar en lotes
-        for i in range(0, len(destinatarios), MAX_DESTINATARIOS):
-            batch = destinatarios[i:i + MAX_DESTINATARIOS]
+        # Enviar correo a cada usuario individualmente
+        for i, correo in enumerate(destinatarios, start=1):
             data = {
                 "from": {"email": os.getenv("MAIL_USUARIO")},
-                "to": [{"email": correo} for correo in batch],
+                "to": [{"email": correo}],
                 "subject": asunto,
                 "text": texto,
                 "html": html
             }
+
             response = requests.post("https://api.mailersend.com/v1/email", json=data, headers=headers)
 
             if response.status_code in [200, 202]:
-                print(f"✅ Correos enviados correctamente al lote {i // MAX_DESTINATARIOS + 1}")
+                print(f"✅ ({i}/{len(destinatarios)}) Correo enviado a {correo}")
             else:
-                print(f"❌ Error al enviar el lote {i // MAX_DESTINATARIOS + 1}:", response.text)
+                print(f"❌ ({i}/{len(destinatarios)}) Error al enviar a {correo}: {response.text}")
+
+            # Pequeña pausa para evitar límite de velocidad
+            time.sleep(1)
 
     except Exception as e:
         print("❌ Error al procesar los correos:", e)
-
-
-
 
 # -------------- ejecutar --------------
 if __name__ == '__main__':
