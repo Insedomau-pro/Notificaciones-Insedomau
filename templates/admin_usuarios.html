@@ -20,12 +20,12 @@
       <tbody>
         {% for u in usuarios %}
         <tr>
-          <td data-label="ID">{{ u[0] }}</td>
-          <td data-label="Correo">{{ u[1] }}</td>
-          <td data-label="Rol">{{ u[2] }}</td>
+          <td data-label="ID">{{ u.id }}</td>
+          <td data-label="Correo">{{ u.correo }}</td>
+          <td data-label="Rol">{{ u.rol }}</td>
           <td data-label="Acciones" class="acciones">
-            <a href="{{ url_for('admin_editar_usuario', usuario_id=u[0]) }}" class="btn-editar">✏️</a>
-            <form method="POST" action="{{ url_for('admin_eliminar_usuario', usuario_id=u[0]) }}" class="form-eliminar">
+            <a href="{{ url_for('admin_editar_usuario', usuario_id=u.id) }}" class="btn-editar">✏️</a>
+            <form method="POST" action="{{ url_for('admin_eliminar_usuario', usuario_id=u.id) }}" class="form-eliminar">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
               <button type="submit" class="btn-eliminar" onclick="return confirm('¿Eliminar este usuario?')">🗑️</button>
             </form>

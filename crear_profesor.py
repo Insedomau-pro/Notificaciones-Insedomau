@@ -20,7 +20,7 @@ if __name__ == '__main__':
     try:
         cur.execute(
             'INSERT INTO usuario (correo, contrasena_hash, rol) VALUES (%s, %s, %s)',
-            (correo, contrasena_hash, 'profesor')
+            (correo, contrasena_hash, 'admin')
         )
         conexion.commit()
         print(f'✅ Profesor {correo} creado correctamente')

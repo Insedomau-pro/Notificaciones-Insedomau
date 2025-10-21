@@ -3,7 +3,14 @@
 {% block contenido %}
   {% if noticia %}
     <h2>Editar noticia</h2>
-    <form action="/noticias/{{ noticia[0] }}/editar" method="post" enctype="multipart/form-data">
+
+    {# 🔹 Mostrar badge si el usuario actual es el autor #}
+    {% set u = obtener_usuario_actual() %}
+    {% if u and noticia and u.id == noticia['autor_id'] %}
+      <div class="badge tu-noticia">Estás editando tu noticia</div>
+    {% endif %}
+
+    <form action="/noticias/{{ noticia['id'] }}/editar" method="post" enctype="multipart/form-data">
   {% else %}
     <h2>Crear noticia</h2>
     <form action="/noticias/crear" method="post" enctype="multipart/form-data">
@@ -13,13 +20,33 @@
 
     <label>
       Título<br>
-      <input type="text" name="titulo" value="{{ noticia[1] if noticia else '' }}" required>
+      <input type="text" name="titulo" value="{{ noticia['titulo'] if noticia else '' }}" required>
     </label>
 
     <label>
       Cuerpo<br>
-      <textarea name="cuerpo" required>{{ noticia[2] if noticia else '' }}</textarea>
+      <textarea name="cuerpo" required>{{ noticia['cuerpo'] if noticia else '' }}</textarea>
     </label>
+    
+    <!-- Casilla para anclar la publicación -->
+    <div class="form-check" style="margin-top: 10px;">
+      <input type="checkbox" class="form-check-input" id="anclada" name="anclada"
+          {% if noticia and noticia['anclada'] %}checked{% endif %}>
+      <label class="form-check-label" for="anclada">Anclar publicación (permanecer arriba)</label>
+    </div>
+
+    <!-- Selección de duración solo si se ancla -->
+    <div id="anclada-duracion-container" style="margin-top: 10px;">
+      <label for="anclada_duracion">Duración del anclado:</label>
+      <select name="anclada_duracion" id="anclada_duracion" {% if not noticia or not noticia['anclada'] %}disabled{% endif %}>
+        <option value="1hora" {% if noticia and noticia['anclada_hasta'] and 'hour' in noticia['anclada_hasta'] %}selected{% endif %}>1 hora</option>
+        <option value="6hora" {% if noticia and noticia['anclada_hasta'] and '6hour' in noticia['anclada_hasta'] %}selected{% endif %}>6 horas</option>
+        <option value="12hora" {% if noticia and noticia['anclada_hasta'] and '12hour' in noticia['anclada_hasta'] %}selected{% endif %}>12 horas</option>
+        <option value="1dias" {% if noticia and noticia['anclada_hasta'] and '1day' in noticia['anclada_hasta'] %}selected{% endif %}>1 día</option>
+        <option value="3dias" {% if noticia and noticia['anclada_hasta'] and '3day' in noticia['anclada_hasta'] %}selected{% endif %}>3 días</option>
+        <option value="permanente" {% if noticia and (not noticia['anclada_hasta']) %}selected{% endif %}>Permanente</option>
+      </select>
+    </div>
 
     <!-- Archivos ya existentes -->
     {% if noticia and adjuntos %}
@@ -27,8 +54,8 @@
       <ul>
         {% for adjunto in adjuntos %}
           <li>
-            <a href="{{ url_for('adjunto_descargar', adjunto_id=adjunto[0]) }}" target="_blank">
-              {{ adjunto[1] }}
+            <a href="{{ url_for('adjunto_descargar', adjunto_id=adjunto['id']) }}" target="_blank">
+              {{ adjunto['nombre_original'] }}
             </a>
           </li>
         {% endfor %}
@@ -44,23 +71,24 @@
 
     <!-- Botones finales -->
     <div class="acciones-formulario">
-      <button type="submit" class="boton boton-guardar">Guardar</button>
+      <button type="submit" class="boton boton-guardar">
+        {% if noticia %}Guardar cambios{% else %}Crear noticia{% endif %}
+      </button>
       <a href="/noticias" class="boton boton-cancelar">Cancelar</a>
     </div>
-  </form> <!-- 🔹 Cierra el formulario principal -->
+  </form>
 
   {% if noticia and adjuntos %}
     <h3>Adjuntos actuales</h3>
     <div class="adjuntos-actuales">
       {% for adj in adjuntos %}
         <div class="adjunto-item">
-          {% if adj[3] == 'bd' %}
-            <img src="/adjuntos/{{ adj[0] }}/inline" alt="{{ adj[1] }}" width="200"><br>
+          {% if adj['modo_almacenamiento'] == 'bd' %}
+            <img src="/adjuntos/{{ adj['id'] }}/inline" alt="{{ adj['nombre_original'] }}" width="200"><br>
           {% else %}
-            <img src="/static/uploads/{{ adj[4] }}" alt="{{ adj[1] }}" width="200"><br>
+            <img src="/static/uploads/{{ adj['nombre_guardado'] }}" alt="{{ adj['nombre_original'] }}" width="200"><br>
           {% endif %}
-          <!-- 🔹 Formulario separado SOLO para eliminar imagen -->
-          <form action="/adjuntos/{{ adj[0] }}/eliminar" method="post">
+          <form action="/adjuntos/{{ adj['id'] }}/eliminar" method="post">
             <input type="hidden" name="csrf_token" value="{{ token }}">
             <button type="submit" class="boton boton-eliminar" onclick="return confirm('¿Eliminar esta imagen?')">
               Eliminar
@@ -72,28 +100,50 @@
   {% endif %}
 
   {% if noticia %}
-    <!-- 🔹 Formulario separado SOLO para eliminar noticia -->
-    <form action="{{ url_for('noticias_eliminar', noticia_id=noticia[0]) }}" method="post" style="margin-top:10px;">
+    <form action="{{ url_for('noticias_eliminar', noticia_id=noticia['id']) }}" method="post" style="margin-top:10px;">
       <input type="hidden" name="csrf_token" value="{{ token }}">
       <button type="submit" class="boton boton-eliminar" onclick="return confirm('¿Seguro que quieres eliminar esta noticia?')">
         Eliminar noticia
       </button>
     </form>
   {% endif %}
-
-  <script>
-    const label = document.querySelector('.file-label');
-    const input = label.querySelector('input[type="file"]');
-    label.addEventListener('click', () => input.click());
-
-    function updateFileNames(input) {
-      const list = document.getElementById('file-names');
-      list.innerHTML = '';
-      for (let i = 0; i < input.files.length; i++) {
-        const div = document.createElement('div');
-        div.textContent = input.files[i].name;
-        list.appendChild(div);
-      }
-    }
-  </script>
 {% endblock %}
+
+<script>
+  // Archivos
+  const label = document.querySelector('.file-label');
+  const input = label.querySelector('input[type="file"]');
+  label.addEventListener('click', () => input.click());
+
+  function updateFileNames(input) {
+    const list = document.getElementById('file-names');
+    list.innerHTML = '';
+    for (let i = 0; i < input.files.length; i++) {
+      const div = document.createElement('div');
+      div.textContent = input.files[i].name;
+      list.appendChild(div);
+    }
+  }
+
+  // Mostrar select de duración solo si checkbox está marcado
+  const checkbox = document.getElementById('anclada');
+  const select = document.getElementById('anclada_duracion');
+  function toggleDuracion() {
+    select.disabled = !checkbox.checked;
+  }
+  checkbox.addEventListener('change', toggleDuracion);
+  toggleDuracion(); // Ejecutar al cargar la página
+</script>
+
+
+<style>
+  .tu-noticia {
+  display: inline-block;
+  background-color: #0051ff;
+  color: #0088ff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+}
+</style>

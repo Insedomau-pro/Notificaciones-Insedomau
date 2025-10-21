@@ -2,52 +2,77 @@
 
 {% block contenido %}
   <p>
-    <a href="{{ url_for('noticias_lista') }}" class="boton boton-volver">◀</a>
+    <a href="{{ url_for('noticias_lista') }}" class="boton boton-volver">◀ Volver a Noticias</a>
   </p>
 
-  <h2>{{ noticia[1] }}</h2>
-  <p class="meta">Publicado: {{ noticia[4].strftime('%d/%m/%Y - %H:%M') }}</p>
+  <h2>{{ noticia['titulo'] }}</h2>
+  <p class="meta">Publicado: {{ noticia['publicada_en'].strftime('%d/%m/%Y - %H:%M') }}</p>
+
+  {% set u = obtener_usuario_actual() %}
+
+  <div class="badges">
+    {% if noticia['anclada'] %}
+      <span class="badge badge-anclada">📌</span>
+    {% endif %}
+
+    {% if u and u['id'] == noticia['autor_id'] %}
+      <span class="badge tu-noticia">Tu noticia</span>
+    {% endif %}
+
+    {% if u and u['rol'] == 'profesor' and u['id'] == noticia['autor_id'] %}
+      <form action="{{ url_for('noticias_editar', noticia_id=noticia['id']) }}" method="get" style="display:inline;">
+        <button type="submit" class="boton boton-editar">Editar</button>
+      </form>
+    {% endif %}
+  </div>
 
   <div class="cuerpo">
-    {{ noticia[2] }}
+    {{ noticia['cuerpo'] }}
   </div>
 
-<p></p>
-  <div class="galeria">
-    {% for adj in adjuntos %}
-      {% if adj[3] == 'bd' or adj[2].startswith('image/') %}
-        <div class="imagen-galeria">
-          <a href="#img{{ adj[0] }}">
-            <img src="/adjuntos/{{ adj[0] }}/inline" alt="{{ adj[1] }}" class="mini">
-          </a>
-          <div id="img{{ adj[0] }}" class="modal">
-            <a href="#" class="cerrar">×</a>
-            <img src="/adjuntos/{{ adj[0] }}/inline" alt="{{ adj[1] }}">
+  {% if adjuntos %}
+    <div class="galeria">
+      {% for adj in adjuntos %}
+        {% if adj['modo_almacenamiento'] == 'bd' or adj['tipo_mime'].startswith('image/') %}
+          <div class="imagen-galeria">
+            <a href="#img{{ adj['id'] }}">
+              <img src="/adjuntos/{{ adj['id'] }}/inline" alt="{{ adj['nombre_original'] }}" class="mini">
+            </a>
+            <div id="img{{ adj['id'] }}" class="modal">
+              <a href="#" class="cerrar">×</a>
+              <img src="/adjuntos/{{ adj['id'] }}/inline" alt="{{ adj['nombre_original'] }}">
+            </div>
           </div>
-        </div>
-      {% endif %}
-    {% endfor %}
-  </div>
+        {% endif %}
+      {% endfor %}
+    </div>
 
-  <p></p>
-
-  <ul>
-    {% for adj in adjuntos %}
-      <li>
-        {{ adj[1] }} - 
-        <a href="/adjuntos/{{ adj[0] }}/descargar" class="boton boton-descargar">Descargar</a>
-      </li>
-    {% endfor %}
-  </ul>
-
-  {% if session and session.usuario_id %}
-    {% set usuario = obtener_usuario_actual() %}
-    {% if usuario and usuario.rol == 'profesor' %}
-      <p>
-        <a href="/noticias/{{ noticia[0] }}/editar" class="boton boton-editar">Editar</a>
-      </p>
-    {% endif %}
+    <ul>
+      {% for adj in adjuntos %}
+        <li>
+          {{ adj['nombre_original'] }}
+          <a href="/adjuntos/{{ adj['id'] }}/descargar" class="boton boton-descargar">Descargar</a>
+        </li>
+      {% endfor %}
+    </ul>
   {% endif %}
-
-
 {% endblock %}
+
+
+<style>
+  .badge {
+  display: inline-block;
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-size: 0.8em;
+  margin-right: 5px;
+  color: #fff;
+}
+.badge-anclada {
+  background-color: #e67e22;
+}
+.tu-noticia {
+  background-color: #3498db;
+}
+
+</style>

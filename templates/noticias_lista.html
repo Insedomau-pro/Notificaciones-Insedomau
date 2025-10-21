@@ -1,74 +1,123 @@
 {% extends 'base.html' %}
 
 {% block contenido %}
-  <div class="contenedor-noticias">
-    <h2>Noticias recientes</h2>
+<div class="contenedor-noticias">
+  <h2>Noticias recientes</h2>
 
-    {% if session and session.usuario_id %}
-      {% set usuario = obtener_usuario_actual() %}
-      {% if usuario and usuario.rol == 'profesor' %}
-        <p><a class="boton-crear-noticia" href="{{ url_for('noticias_crear') }}">Crear nueva publicación</a></p>
-      {% endif %}
-    {% endif %}
+  {% set u = obtener_usuario_actual() %}
 
-    <div class="lista-noticias">
-      {% for noticia in noticias %}
-        <div class="noticia-card">
-          <h3>
-            <a href="{{ url_for('noticias_detalle', noticia_id=noticia[0]) }}">
-              {{ noticia[1] }}
-            </a>
-          </h3>
-          <p>{{ noticia[2].split()[:10] | join(' ') }}...</p>
-          <small>{{ noticia[3].strftime('%d/%m/%Y %H:%M') }}</small>
-        </div>
-      {% endfor %}
-    </div>
+  {% if u and u.rol == 'profesor' %}
+    <p><a class="boton-crear-noticia" href="{{ url_for('noticias_crear') }}">Crear nueva publicación</a></p>
+  {% endif %}
 
-    <div class="paginacion">
-      {% if pagina > 1 %}
-        <a href="?page={{ pagina - 1 }}">◀</a>
-      {% endif %}
-      <span>Página {{ pagina }} de {{ paginas_totales }}</span>
-      {% if pagina < paginas_totales %}
-        <a href="?page={{ pagina + 1 }}">➤</a>
-      {% endif %}
-    </div>
+  <div class="lista-noticias">
+    {% for noticia in noticias %}
+      <div class="noticia-card {% if noticia['anclada'] %}noticia-anclada{% endif %}">
+        <h3>
+          <a href="{{ url_for('noticias_detalle', noticia_id=noticia['id']) }}">{{ noticia['titulo'] }}</a>
+        </h3>
+
+        <p>{{ noticia['cuerpo'] }}</p>
+
+        <!-- Indicador de noticia anclada -->
+        {% if noticia['anclada'] %}
+          <span class="badge badge-anclada">📌</span>
+        {% endif %}
+
+        <!-- Botón Editar solo para el autor -->
+        {% if u and u['rol'] == 'profesor' and noticia['autor_id'] == u['id'] %}
+          <a href="{{ url_for('noticias_editar', noticia_id=noticia['id']) }}" class="btn-editar">Editar</a>
+        {% endif %}
+      </div>
+    {% endfor %}
   </div>
+
+  <div class="paginacion">
+    {% if pagina > 1 %}
+      <a href="?page={{ pagina - 1 }}">◀</a>
+    {% endif %}
+    <span>Página {{ pagina }} de {{ paginas_totales }}</span>
+    {% if pagina < paginas_totales %}
+      <a href="?page={{ pagina + 1 }}">➤</a>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}
 
 <style>
-  .contenedor-noticias {
-    max-width: 800px;   /* Ancho fijo para todas las páginas */
-    margin: 0 auto;     /* Centrado horizontal */
-    padding: 20px;
-  }
+.contenedor-noticias {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color:#fefefe;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
 
-  .lista-noticias {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;          /* Separación entre noticias */
-  }
+.lista-noticias {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
 
-  .noticia-card {
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.15);
-    padding: 16px;
-  }
+.lista-noticias:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
 
-  .noticia-card h3 {
-    margin: 0 0 8px 0;
-    font-size: 18px;
-  }
 
-  .noticia-card p {
-    margin: 0 0 5px 0;
-    color: #666;
-  }
+.noticia-card {
+  border-left: 4px solid #3498db; /* línea a la izquierda */
+  padding: 18px 20px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
 
-  .paginacion {
-    margin-top: 20px;
-    text-align: center;
-  }
+.noticia-card:hover {
+  border-color: #0056b3;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.noticia-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.noticia-card p {
+  margin: 0 0 5px 0;
+  color: #666;
+}
+
+.paginacion {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-size: 0.8em;
+  margin-right: 5px;
+  color: #ffffff;
+}
+
+.badge-anclada {
+  background-color: #ff7700 !important;
+}
+
+.badge-tu-noticia {
+  background-color: #3498db !important;
+}
+
+.btn-editar {
+  display: inline-block;
+  background-color: #0040ff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.btn-editar:hover {
+  background-color: #0099ff;
+}
 </style>

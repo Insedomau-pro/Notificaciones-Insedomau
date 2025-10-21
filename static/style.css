@@ -67,20 +67,110 @@ button:hover {
 /* ======== Barra de navegación ======== */
 /* ======== Barra de navegación compacta ======== */
 header {
-  background: #0056b3; /* azul más vivo */
-  color: white;
-  padding: 0.25rem 1rem; /* ↓ menos alto y menos ancho */
+    background: linear-gradient(90deg, #000000, #0044ff); /* degradado */
+    color: rgb(255, 255, 255);
+    padding: 20px 25px; /* más alto y cómodo */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* sombra sutil */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-nav a {
-  color: white;
-  margin-right: 0.75rem; /* ↓ menos espacio entre enlaces */
-  text-decoration: none;
-  font-weight: 500;
-  line-height: 1.2; /* ↓ reduce la altura de línea */
-  font-size: 0.95rem; /* opcional, texto un poco más pequeño */
+header .contenedor {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+header h1 {
+    font-size: 1.8em;
+    margin: 0;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.boton-admin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;                /* espacio entre emoji y texto */
+    background-color: #ffc107;
+    color: #222;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    line-height: 1;          /* altura de línea para texto */
 }
 
+/* Ajuste específico para el emoji */
+.boton-admin span.emoji {
+    display: inline-block;
+    line-height: 1;          /* alinea con el texto */
+    font-size: 1em;          /* mismo tamaño que el texto */
+}
+
+
+
+header nav a,
+header nav button,
+.boton-admin {
+    color: white;
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 10px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid white;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+/* Hover sobre enlaces y botones */
+header nav a:hover,
+header nav button:hover,
+.boton-admin:hover {
+    background-color: white;
+    color: #2c3e50;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+header li {
+    display: inline-block;
+    margin-left: 15px;
+}
+
+/* Botón admin destacado */
+.boton-admin {
+    background-color: #ffc107; /* amarillo dorado */
+    border-color: #ffc107;
+}
+
+.boton-admin:hover {
+    background-color: #e0a800;
+    color: white;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+}
+
+/* Responsivo: menú nav se acomoda en móvil */
+@media (max-width: 768px) {
+    header .contenedor {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    header nav {
+        margin-top: 10px;
+    }
+    header nav a, header nav button {
+        margin: 5px 5px 0 0;
+    }
+}
 nav a:hover {
   text-decoration: underline;
 }
@@ -88,7 +178,7 @@ nav a:hover {
 
 /* ======== Footer ======== */
 footer {
-  background: #0056b3;
+  background: #0044ff;
   color: white;
   text-align: center;
   padding: 1rem;
@@ -104,7 +194,7 @@ footer {
     font-size: 14px;            /* tamaño de letra legible */
     font-weight: bold;
     color: #fff;                /* texto blanco */
-    background-color: #007bff;  /* azul brillante */
+    background-color: #0044ff;  /* azul brillante */
     border: none;               /* sin borde */
     border-radius: 6px;         /* bordes redondeados */
     cursor: pointer;            /* indicador de clic */
@@ -113,7 +203,7 @@ footer {
 }
 
 .boton-crear-noticia:hover {
-    background-color: #0056b3;  /* azul más oscuro al pasar el mouse */
+    background-color: #0044ff;  /* azul más oscuro al pasar el mouse */
     transform: translateY(-1px); /* ligero efecto de “levantado” */
 }
 
@@ -151,7 +241,7 @@ footer {
 .btn-volver {
     display: inline-block;
     padding: 8px 14px;
-    background-color: #1d4ed8; /* azul brillante */
+    background-color: #0044ff; /* azul brillante */
     color: white;
     text-decoration: none;
     border-radius: 6px;
@@ -163,7 +253,7 @@ footer {
     background-color: #2563eb;
 }
 .detalle-noticia {
-  color: #1a73e8;       /* azul llamativo */
+  color: #0044ff;       /* azul llamativo */
   font-weight: 600;      /* un poco más grueso */
   text-decoration: underline dotted; /* subrayado punteado */
   transition: color 0.3s ease, text-decoration 0.3s ease;
@@ -255,7 +345,7 @@ footer {
 }
 
 .boton-volver {
-  background-color: #2196F3;
+  background-color: #0044ff;
   color: white;
 }
 .boton-volver:hover {
@@ -263,7 +353,7 @@ footer {
 }
 
 .boton-editar {
-  background-color: #2196F3;
+  background-color: #0044ff;
   color: white;
 }
 .boton-editar:hover {
@@ -278,7 +368,7 @@ footer {
   border-radius: 4px;
 }
 .boton-descargar:hover {
-  background-color: #45a049;
+  background-color: #39b03f;
 }
 
 /* --- Galería de imágenes --- */
@@ -358,7 +448,7 @@ footer {
 }
 
 .paginacion a:hover {
-    background: #0056b3;            /* azul más oscuro */
+    background: #0044ff;            /* azul más oscuro */
     transform: scale(0.9);
 }
 
@@ -367,60 +457,81 @@ footer {
     font-weight: bold;
     color: #333; /* texto en negro/gris */
 }
+.contenedor-noticias {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color:#fefefe;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
 
 .lista-noticias {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
+
+.lista-noticias:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+
 
 .noticia-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 15px 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-left: 4px solid #0044ff; /* línea a la izquierda */
+  padding: 18px 20px;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+.noticia-card:hover {
+  border-color: #001365;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
 
 .noticia-card h3 {
-  margin: 0 0 8px;
+  margin: 0 0 8px 0;
   font-size: 18px;
 }
 
-.noticia-card a {
-  text-decoration: none;
-  color: #333;
-}
-
 .noticia-card p {
-  margin: 0 0 10px;
-  color: #555;
+  margin: 0 0 5px 0;
+  color: #666;
 }
 
-.noticia-card small {
-  color: #888;
-  font-size: 12px;
-}
-.contenedor-noticias {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-/* ====== Noticias estilo mejorado ====== */
-.noticia-card {
-    background: #ffffff;
-    padding: 20px;
-    margin: 15px 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    animation: fadeInUp 0.6s ease both;
-    transition: background 0.3s, color 0.3s;
+.paginacion {
+  margin-top: 20px;
+  text-align: center;
 }
 
+.badge {
+  display: inline-block;
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-size: 0.8em;
+  margin-right: 5px;
+  color: #ffffff;
+}
+
+.badge-anclada {
+  background-color: #ff7700 !important;
+}
+
+.badge-tu-noticia {
+  background-color: #3498db !important;
+}
+
+.btn-editar {
+  display: inline-block;
+  background-color: #0040ff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.btn-editar:hover {
+  background-color: #0099ff;
+}
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -522,7 +633,7 @@ footer {
 }
 
 .tabla-usuarios th {
-  background-color: #004080;
+  background-color: #0044ff;
   color: #ffffff;
   text-align: left;
   padding: 12px;
@@ -556,7 +667,7 @@ footer {
 }
 
 .tabla-usuarios .btn-editar {
-  background-color: #007bff;
+  background-color: #0044ff;
   color: #fff;
 }
 
@@ -584,13 +695,13 @@ footer {
 }
 
 .encabezado-admin h2 {
-  color: #004080;
+  color: #0044ff;
   font-size: 22px;
   margin: 0;
 }
 
 .boton-crear {
-  background-color: #28a745;
+  background-color: #0044ff;
   color: #fff;
   padding: 8px 14px;
   border-radius: 8px;
@@ -606,19 +717,6 @@ footer {
   transform: scale(1.05);
 }
 
-.boton-admin {
-  display: inline-block;
-  background-color: #ffc107; /* Amarillo dorado tipo admin */
-  color: #222;
-  font-weight: bold;
-  padding: 8px 14px;
-  border-radius: 8px;
-  text-decoration: none; /* Quita el subrayado */
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
 
 .boton-admin:hover {
   background-color: #e0a800;
@@ -666,7 +764,7 @@ footer {
 }
 
 .tabla-usuarios .btn-editar:hover {
-  background-color: #0056b3;
+  background-color: #0044ff;
   transform: scale(1.05);
 }
 
@@ -678,4 +776,56 @@ footer {
 .tabla-usuarios .btn-eliminar:hover {
   background-color: #c0392b;
   transform: scale(1.05);
+}
+
+.badge-tu-noticia {
+    background-color: #0044ff !important; /* azul */
+    color: white !important;
+}
+.btn-editar {
+  display: inline-block;
+  background-color: #0044ff;
+  color: rgb(255, 255, 255);
+  padding: 5px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.btn-editar:hover {
+  background-color: #3549ff;
+}
+
+.noticia-card h3 {
+  font-family: 'Arial', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  background-color: #e6e6ff;      /*8fondo morado muy claro */
+  padding: 10px 15px;             /* espacio interno */
+  border-radius: 12px;            /* bordes redondeados */
+  border-bottom: 2px solid #0044ff; /* línea morada debajo */
+  display: inline-block;          /* ajusta al ancho del texto */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+/* Efecto hover */
+.noticia-card h3:hover {
+  transform: translateY(-3px);    /* se eleva un poco */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* sombra más profunda */
+  background-color: #ccd6ff;       /* fondo morado más intenso */
+}
+
+
+/* Efecto hover sobre el título */
+.noticia-card h3:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.274);
+  background-color: #cdccff;
+  color: #000000; /* cambia el color del texto al pasar el puntero */
+}
+
+/* Opcional: sombra sutil para dar profundidad */
+.noticia-card h3 {
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }

@@ -25,7 +25,7 @@
     </div>
 
     {% if obtener_usuario_actual() and obtener_usuario_actual().rol == 'admin' %}
-      <li><a href="{{ url_for('admin_usuarios') }}" class="boton-admin">👑 Administración</a></li>
+      <a href="{{ url_for('admin_usuarios') }}" class="boton-admin"><span class="emoji">👑</span>Administración</a>
     {% endif %}
   </header>
 
